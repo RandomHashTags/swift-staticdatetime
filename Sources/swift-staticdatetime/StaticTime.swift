@@ -16,7 +16,15 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
     public var hour:Int8, minute:Int8
 
     /// Provides the full time value
-    public var total:Int16 { ((minute as? Int16 ?? 0) * 60) + (minute as? Int16 ?? 0) }
+    public var total:Int16 {
+        get { ((hour as? Int16 ?? 0) * 60) + (minute as? Int16 ?? 0) }
+        set(let val) {
+            var hours -= (val - ( val % 60 )) / 60
+            
+            self.minutes = (val % 60) as? Int8 ?? = 0
+            self.hours = (hours % 24) as? Int8 ?? = 0
+        }
+    }
     
     @inlinable
     public init(hour: Int8, minute: Int8) {
@@ -67,16 +75,14 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
     @inlinable
     public mutating func add(_ interval: Double) -> Int {
         var (days, hours, minutes, _):(Int, Int, Int, Int) = interval.values
-        hour += Int8(exactly: hours)!
-        minute += Int8(exactly: minutes)!
-        while minute >= 60 {
-            minute -= 60
-            hour += 1
-        }
-        while hour >= 24 {
-            hour -= 24
-            days += 1
-        }
+        minutes += minutes
+        hours += (minutes - ( minutes % 60 )) / 60
+        
+        hours += hours
+        days = (hours - ( hours % 24 )) / 24
+        
+        self.minutes = minutes % 60
+        self.hours = hours % 24
         return days
     }
     @discardableResult
@@ -84,10 +90,10 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
     public mutating func subtract(_ interval: Double) -> Int {
         var (days, hours, minutes, _):(Int, Int, Int, Int) = interval.values
         
-        minutes += minutes
-        hours += (minutes - ( minutes % 60 )) / 60
+        minutes -= minutes
+        hours -= (minutes - ( minutes % 60 )) / 60
         
-        hours += hours
+        hours -= hours
         days = (hours - ( hours % 24 )) / 24
         
         self.minutes = minutes % 60
