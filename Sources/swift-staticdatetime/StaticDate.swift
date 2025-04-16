@@ -8,24 +8,19 @@
 import Foundation
 
 /// An exact year, month and day.
-public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashable, Sendable {
-    @inlinable
-    public static func < (left: Self, right: Self) -> Bool {
-        guard left.year == right.year else { return left.year < right.year }
-        guard left.month == right.month else { return left.month < right.month }
-        return left.day < right.day
-    }
-
+public struct StaticDate : Codable, Hashable, Sendable {
+    // TODO: Move var today to Compatability File
     //public static var today : StaticDate { StaticDate(SwiftLeagueSchedulingUtilities.now) }
     
-    public var year:Int, month:Int, day:Int
+    public var year:Int32, month:UInt8, day:UInt8
     
     @inlinable
-    public init(year: Int, month: Int, day: Int) {
+    public init(year: Int32, month: UInt8, day: UInt8) {
         self.year = year
         self.month = month
         self.day = day
     }
+
     @inlinable
     public init(_ date: Date) {
         let components:DateComponents = Calendar.current.dateComponents([.year, .month, .day], from: date)
@@ -33,6 +28,7 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
         month = components.month!
         day = components.day!
     }
+
     @inlinable
     public init?(htmlDate: String) {
         let values:[Substring] = htmlDate.split(separator: "-")
@@ -41,6 +37,7 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
         self.month = month
         self.day = day
     }
+
     @inlinable
     public init?(eventDate: String) {
         let values:[Substring] = eventDate.split(separator: "/")
@@ -48,17 +45,6 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
         self.year = year
         self.month = month
         self.day = day
-    }
-    
-    @inlinable
-    public var description : String {
-        let date:Date = date(time: StaticTime(hour: 0, minute: 0))
-        return DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: .none)
-    }
-
-    @inlinable
-    public var dateString : String {
-        return "\(year)-" + (month < 10 ? "0" : "") + "\(month)-" + (day < 10 ? "0" : "") + "\(day)"
     }
 
     @inlinable
@@ -70,8 +56,61 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
         return UInt8.saturday.add(previousMonthDaysForYear + (day - 1) + ((index - previousLeapYears) * 365) + (previousLeapYears * 366))
     }
 
+    @inlineable
+    public static func isLeapYear(year: Self.year.Type? = nil) -> Bool {
+        let year = year ?? self.year
+        return (year % 400 != 0) && (year % 100 == 0) ? false : year % 4
+    }
+
+    // Comment: This seems like it should be moved to StaticDateTime
     @inlinable
-    public func date(time: StaticTime) -> Date {
+    public static func date(time: StaticTime) -> Date {
         return DateComponents(calendar: Calendar.current, timeZone: TimeZone.current, year: year, month: month, day: day, hour: Int(time.hour), minute: Int(time.minute)).date!
+    }
+
+    @inlinable
+    public func daysInMonth(month: UInt8, leapYear leap: Bool = false) -> UInt8 {
+        guard month in 1...12 else {
+            // TODO: Add warning log "the value of `month` should be inside the range: `1...12`" or throw a OoB error
+            return 30
+        }
+        switch month {
+        case 2: return leap ? 29 : 28
+        case 1, 3, 5, 7, 8, 10, 12: return 31
+        default: return 30
+        }
+    }
+}
+
+extension StaticDate: CustomStringConvertable {
+    @inlinable
+    public var description : String {
+        #if UseDateFormatter
+        let date:Date = date(time: StaticTime(hour: 0, minute: 0))
+        return DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: .none)
+        #else
+        return self.dateString
+        #endif
+    }
+
+    @inlinable
+    public var dateString : String {
+        return "\(year)-" + (month < 10 ? "0" : "") + "\(month)-" + (day < 10 ? "0" : "") + "\(day)"
+    }
+}
+
+extension StaticDate: Comparable {
+    @inlinable
+    public static func < (left: Self, right: Self) -> Bool {
+        guard left.year == right.year else { return left.year < right.year }
+        guard left.month == right.month else { return left.month < right.month }
+        return left.day < right.day
+    }
+}
+
+extension Date {
+    /// Creates a Date at the start of the day using StaticDate. 
+    init(_ staticDate:StaticDate) {
+        self = DateComponents(calendar: Calendar.current, timeZone: TimeZone.current, year: staticDate.year, month: staticDate.month, day: staticDate.day, hour: 0, minute: 0).date!
     }
 }

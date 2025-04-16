@@ -19,10 +19,10 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
     public var total:Int16 {
         get { ((hour as? Int16 ?? 0) * 60) + (minute as? Int16 ?? 0) }
         set(let val) {
-            var hours -= (val - ( val % 60 )) / 60
+            var hours = (val - ( val % 60 )) / 60
             
-            self.minutes = (val % 60) as? Int8 ?? = 0
-            self.hours = (hours % 24) as? Int8 ?? = 0
+            self.minutes = (val / 60) as? Int8 ?? = 0
+            self.hours = (hours / 24) as? Int8 ?? = 0
         }
     }
     
