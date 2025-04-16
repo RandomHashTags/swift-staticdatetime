@@ -18,14 +18,30 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
 
     //public static var today : StaticDate { StaticDate(SwiftLeagueSchedulingUtilities.now) }
     
-    public var year:Int, month:Int, day:Int
+    public var year:Int32, month:UInt8, day:UInt8
+    
+    /// Provides the full date value
+    public var total:Int {
+        get { (year * 256) + (month * 30) + day }
+        set(let val) {
+            var month -= (val.magnitude / 30) % 12
+            var year -= 
+            
+            self.days = ((val.magnitude / 12) % 30) as? UInt8 ?? 0
+
+            self.year = year as? Int32 ?? 0
+        }
+    }
+
+    
     
     @inlinable
-    public init(year: Int, month: Int, day: Int) {
+    public init(year: Int32, month: UInt8, day: UInt8) {
         self.year = year
         self.month = month
         self.day = day
     }
+
     @inlinable
     public init(_ date: Date) {
         let components:DateComponents = Calendar.current.dateComponents([.year, .month, .day], from: date)
@@ -33,6 +49,7 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
         month = components.month!
         day = components.day!
     }
+
     @inlinable
     public init?(htmlDate: String) {
         let values:[Substring] = htmlDate.split(separator: "-")
@@ -41,6 +58,7 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
         self.month = month
         self.day = day
     }
+
     @inlinable
     public init?(eventDate: String) {
         let values:[Substring] = eventDate.split(separator: "/")
@@ -73,5 +91,17 @@ public struct StaticDate : Codable, Comparable, CustomStringConvertible, Hashabl
     @inlinable
     public func date(time: StaticTime) -> Date {
         return DateComponents(calendar: Calendar.current, timeZone: TimeZone.current, year: year, month: month, day: day, hour: Int(time.hour), minute: Int(time.minute)).date!
+    }
+
+    @inlinable
+    public func daysInMonth(month: UInt8, days: UInt8, leapYear: Bool = false) -> UInt8 {
+        guard month in 1...12 else {
+            return 30
+        }
+        switch month {
+        case 2: return leapYear ? 29 : 28
+        case 1, 3, 5, 7, 8, 10, 12: return 31
+        default: return 30
+        }
     }
 }
