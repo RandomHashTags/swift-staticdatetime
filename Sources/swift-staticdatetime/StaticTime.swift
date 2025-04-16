@@ -14,18 +14,37 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
     }
     
     public var hour:Int8, minute:Int8
+
+    /// Provides the full time value
+    public var total:Int16 {
+        get { ((hour as? Int16 ?? 0) * 60) + (minute as? Int16 ?? 0) }
+        set(let val) {
+            var hours = (val - ( val % 60 )) / 60
+            
+            self.minutes = (val / 60) as? Int8 ?? = 0
+            self.hours = (hours / 24) as? Int8 ?? = 0
+        }
+    }
     
     @inlinable
     public init(hour: Int8, minute: Int8) {
         self.hour = hour
         self.minute = minute
     }
+    
     @inlinable
     public init?<T: StringProtocol>(htmlTime: T) {
         let values = htmlTime.split(separator: ":")
         guard values.count == 2, let hour = Int8(values[0]), let minute = Int8(values[1]) else { return nil }
         self.hour = hour
         self.minute = minute
+    }
+
+    public init?(total: Int16) {
+        // value is calculated as 24*60
+        guard abs(total) <= 1_440 else { return nil }
+        self.minute = total % 60
+        self.hour = total - minute
     }
     
     @inlinable
@@ -56,37 +75,29 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
     @inlinable
     public mutating func add(_ interval: Double) -> Int {
         var (days, hours, minutes, _):(Int, Int, Int, Int) = interval.values
-        hour += Int8(exactly: hours)!
-        minute += Int8(exactly: minutes)!
-        while minute >= 60 {
-            minute -= 60
-            hour += 1
-        }
-        while hour >= 24 {
-            hour -= 24
-            days += 1
-        }
+        minutes += minutes
+        hours += (minutes - ( minutes % 60 )) / 60
+        
+        hours += hours
+        days = (hours - ( hours % 24 )) / 24
+        
+        self.minutes = minutes % 60
+        self.hours = hours % 24
         return days
     }
     @discardableResult
     @inlinable
     public mutating func subtract(_ interval: Double) -> Int {
         var (days, hours, minutes, _):(Int, Int, Int, Int) = interval.values
-        days = 0
-        let minutes_to_hours:Int = minutes / 60
-        minutes -= minutes_to_hours * 60
-        hours += minutes_to_hours
         
-        hour -= Int8(exactly: hours)!
-        minute -= Int8(exactly: minutes)!
-        while hour < 0 {
-            days += 1
-            hour += 24
-        }
-        while minute < 0 {
-            minute += 60
-            hour -= 1
-        }
+        minutes -= minutes
+        hours -= (minutes - ( minutes % 60 )) / 60
+        
+        hours -= hours
+        days = (hours - ( hours % 24 )) / 24
+        
+        self.minutes = minutes % 60
+        self.hours = hours % 24
         return days
     }
 
