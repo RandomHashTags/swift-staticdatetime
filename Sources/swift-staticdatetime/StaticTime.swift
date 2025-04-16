@@ -74,7 +74,7 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
     @discardableResult
     @inlinable
     public mutating func add(_ interval: Double) -> Int {
-        var (days, hours, minutes, _):(Int, Int, Int, Int) = interval.values
+        var (days, hours, minutes, _):(Int8, Int8, Int8, Int8) = interval.values
         minutes += minutes
         hours += (minutes - ( minutes % 60 )) / 60
         
@@ -85,10 +85,11 @@ public struct StaticTime : Codable, Comparable, CustomStringConvertible, Hashabl
         self.hours = hours % 24
         return days
     }
+    
     @discardableResult
     @inlinable
     public mutating func subtract(_ interval: Double) -> Int {
-        var (days, hours, minutes, _):(Int, Int, Int, Int) = interval.values
+        var (days, hours, minutes, _):(Int8, Int8, Int8, Int8) = interval.values
         
         minutes -= minutes
         hours -= (minutes - ( minutes % 60 )) / 60
