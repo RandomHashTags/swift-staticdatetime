@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "StaticDate.proto";
+import "StaticTime.proto";
+
+// An exact date and time.
+message StaticDateTime {
+    StaticDate staticDate = 1;
+    StaticTime staticTime = 2;
+}

@@ -1,9 +1,3 @@
-//
-//  TestsStaticDateTime.swift
-//
-//
-//  Created by Evan Anderson on 5/31/24.
-//
 
 import Testing
 @testable import StaticDateTimes

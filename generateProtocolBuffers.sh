@@ -1,0 +1,1 @@
+protoc --proto_path=./Sources/ProtocolBuffers --swift_out=Visibility=Public:./Sources/swift-staticdatetime ./Sources/ProtocolBuffers/*.proto

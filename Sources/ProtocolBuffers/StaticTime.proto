@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+// An exact hour and minute.
+message StaticTime {
+    int32 hour = 1;
+    int32 minute = 2;
+}

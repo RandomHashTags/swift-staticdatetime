@@ -1,9 +1,3 @@
-//
-//  TestsDayOfWeek.swift
-//
-//
-//  Created by Evan Anderson on 5/31/24.
-//
 
 @testable import StaticDateTimes
 import Testing

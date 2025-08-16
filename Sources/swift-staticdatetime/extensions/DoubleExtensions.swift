@@ -1,3 +1,4 @@
+
 extension Double {
     @inlinable public static func minutes(_ input: Int) -> Double { minutes(Double(input)) }
 
@@ -26,7 +27,7 @@ extension Double {
     @inlinable public static func years(_ input: Double) -> Double { days(365.25) * input }
 
     @inlinable
-    public var values : (days: Int, hours: Int, minutes: Int, seconds: Int) {
+    public var values: (days: Int, hours: Int, minutes: Int, seconds: Int) {
         var seconds:Int = Int(self)
         var minutes:Int = seconds / 60
         seconds -= minutes * 60
