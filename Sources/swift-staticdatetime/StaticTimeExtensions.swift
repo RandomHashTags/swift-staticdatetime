@@ -47,11 +47,11 @@ extension StaticTime: Hashable {
 extension StaticTime {
     @inlinable
     public init(
-        hour: some FixedWidthInteger,
-        minute: some FixedWidthInteger
+        hour: some BinaryInteger,
+        minute: some BinaryInteger
     ) {
-        self.hour = Int32(hour)
-        self.minute = Int32(minute)
+        self.hour = Int32(clamping: hour)
+        self.minute = Int32(clamping: minute)
     }
 
     @inlinable
